@@ -1,0 +1,141 @@
+1 intallar compose and select php and add to path
+2 intallar in your project :composer require phpoffice/phpspreadsheet
+3 put in your file in the top this: 
+require_once __DIR__ . '/../vendor/autoload.php'; // <- Cargar Composer correctamente
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+4 this is the code
+/*=============================================
+	DESCARGAR EXCEL
+	=============================================*/
+
+	public function ctrDescargarReporte(){
+
+		if(isset($_GET["reporte"])){
+
+			$tabla = "ventas";
+
+			if(isset($_GET["fechaInicial"]) && isset($_GET["fechaFinal"])){
+
+				$ventas = ModeloVentas::mdlRangoFechasVentas($tabla, $_GET["fechaInicial"], $_GET["fechaFinal"]);
+
+			}else{
+
+				$item = null;
+				$valor = null;
+
+				$ventas = ModeloVentas::mdlMostrarVentas($tabla, $item, $valor);
+
+			}
+
+			$spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+			 // Encabezados
+			 $encabezados = ['CÓDIGO', 'CLIENTE', 'VENDEDOR', 'CANTIDAD', 'PRODUCTOS', 'IMPUESTO', 'NETO', 'TOTAL', 'METODO DE PAGO', 'FECHA'];
+
+			 // Escribir encabezados
+			 $columna = 'A';
+			 foreach ($encabezados as $encabezado) {
+				 $sheet->setCellValue($columna . '1', $encabezado);
+				 $columna++;
+			 }
+ 
+			 // Aplicar estilo a encabezados
+			 $sheet->getStyle('A1:J1')->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF']
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '4F81BD']
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000']
+                    ]
+                ],
+                'alignment' => [
+                    'horizontal' => 'center'
+                ]
+            ]);
+			
+
+			 // Escribir datos
+			 $fila = 2;
+			 foreach ($ventas as $item) {
+ 
+				 $cliente = ControladorClientes::ctrMostrarClientes("id", $item["id_cliente"]);
+				 $vendedor = ControladorUsuarios::ctrMostrarUsuarios("id", $item["id_vendedor"]);
+				 $productos = json_decode($item["productos"], true);
+ 
+				 $cantidad = "";
+				 $descripcion = "";
+ 
+				 foreach ($productos as $valueProductos) {
+					 $cantidad .= $valueProductos["cantidad"] . "\n";
+					 $descripcion .= $valueProductos["descripcion"] . "\n";
+				 }
+ 
+				 $sheet->setCellValue('A' . $fila, $item["codigo"]);
+				 $sheet->setCellValue('B' . $fila, $cliente["nombre"]);
+				 $sheet->setCellValue('C' . $fila, $vendedor["nombre"]);
+				 $sheet->setCellValue('D' . $fila, $cantidad);
+				 $sheet->setCellValue('E' . $fila, $descripcion);
+				 $sheet->setCellValue('F' . $fila, $item["impuesto"]);
+				 $sheet->setCellValue('G' . $fila, $item["neto"]);
+				 $sheet->setCellValue('H' . $fila, $item["total"]);
+				 $sheet->setCellValue('I' . $fila, $item["metodo_pago"]);
+				 $sheet->setCellValue('J' . $fila, substr($item["fecha"], 0, 10));
+ 
+				 // Ajustar texto multilinea en celdas
+				 $sheet->getStyle('D' . $fila . ':E' . $fila)->getAlignment()->setWrapText(true);
+ 
+				 $fila++;
+			 }
+ 
+			 $lastRow = $fila - 1;
+ 
+			 // Formato de números como dinero
+			 $sheet->getStyle('F2:H' . $lastRow)
+				 ->getNumberFormat()
+				 ->setFormatCode('#,##0.00');
+ 
+			 // Aplicar bordes a toda la tabla
+			 $sheet->getStyle('A1:J' . $lastRow)->applyFromArray([
+				 'borders' => [
+					 'allBorders' => [
+						 'borderStyle' => Border::BORDER_THIN,
+						 'color' => ['rgb' => '000000']
+					 ]
+				 ]
+			 ]);
+ 
+			 // Autosize columnas
+			 foreach (range('A', 'J') as $col) {
+				 $sheet->getColumnDimension($col)->setAutoSize(true);
+			 }
+ 
+			 // Agregar suma automática en TOTAL (columna H)
+			 $sheet->setCellValue('H' . ($fila), '=SUM(H2:H' . $lastRow . ')');
+			 $sheet->getStyle('H' . ($fila))
+				 ->getNumberFormat()
+				 ->setFormatCode('#,##0.00');
+			 $sheet->getStyle('H' . ($fila))->getFont()->setBold(true);
+ 
+			 // Descargar
+			 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			 header('Content-Disposition: attachment;filename="' . $_GET["reporte"] . '.xlsx"');
+			 header('Cache-Control: max-age=0');
+ 
+			 $writer = new Xlsx($spreadsheet);
+			 $writer->save('php://output');
+			 exit;
+		 }
+
+	}

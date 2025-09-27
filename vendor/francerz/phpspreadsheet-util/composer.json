@@ -1,0 +1,27 @@
+{
+    "name": "francerz/phpspreadsheet-util",
+    "description": "PhpOffice/Spreadsheet utils",
+    "type": "library",
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Francerz",
+            "email": "francerzam@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Francerz\\PhpSpreadsheet\\Util\\": "src"
+        }
+    },
+    "require": {
+        "psr/http-message": "^1.0",
+        "francerz/http-utils": "^0.2.15"
+    },
+    "suggest": {
+        "phpoffice/phpspreadsheet": "Create and manipulate Spreadsheets with PHP."
+    },
+    "require-dev": {
+        "phpoffice/phpspreadsheet": "^1.16"
+    }
+}

@@ -1,0 +1,34 @@
+{
+    "name": "francerz/http-utils",
+    "description": "PHP HTTP utils compatible with PSR-7, PSR-17",
+    "keywords": ["psr-7","http","http-message","http-factory","psr-17"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Francerz",
+            "email": "francerzam@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "files": [ "src/functions.php" ],
+        "psr-4": {
+            "Francerz\\Http\\Utils\\": "src/utils",
+            "Francerz\\Http\\Utils\\Headers\\": "src/headers",
+            "Francerz\\Http\\Utils\\Constants\\": "src/constants",
+            "Francerz\\Http\\Utils\\Exceptions\\": "src/exceptions"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Francerz\\HttpUtils\\Dev\\": "dev"
+        }
+    },
+    "require": {
+        "psr/http-factory": "^1.0",
+        "fig/http-message-util": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    }
+}
