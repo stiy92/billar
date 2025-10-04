@@ -70,3 +70,27 @@ el error despues de realizar venta si estaba en la linea 126 como mostraba el me
 la impresora par que sea modo bidirecional tiene que ser version -4 y no -3  en regedy se pude ver w+r y regedy
 
 actualize fontawesome descargando el archivo y remplazando el actual ubicado en link rel="stylesheet" href="vistas/bower_components/font-awesome/ lo puedes ver en la plantilla su uso
+
+////////////por que no cargan las imagenes al crear un producto o editarlo/////////////////////////
+1: la extensión GD no está habilitada.
+
+2 habilitar:
+Abre el archivo: C:\xampp\php\php.ini
+Busca esta línea (usa Ctrl + F):
+;extension=gd
+Quita el punto y coma ; al inicio, debe quedar así:
+extension=gd
+En algunas versiones aparece como:
+;extension=gd2
+extension=gd2
+Guarda los cambios en el archivo php.ini.
+Reinicia Apache
+Verifica que GD esté activa
+Crea un archivo llamado info.php dentro de tu carpeta htdocs con este contenido:
+<?php
+phpinfo();
+?>
+Abre en tu navegador:
+http://localhost/info.php
+Busca “GD Support”.
+Si aparece enabled, ¡todo está bien configurado!
